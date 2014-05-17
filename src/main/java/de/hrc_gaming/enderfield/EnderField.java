@@ -91,8 +91,8 @@ public class EnderField extends JavaPlugin implements Listener {
 	
 	private Vector getVector(Location start)
 	{
-		Location end = move(start, 6.5);
-		end.add(0, 1.75, 0);
+		Location end = move(start, 10.5);
+		end.add(0, 2.75, 0);
 		Vector velocity = toVector(end).subtract(toVector(start));
 		velocity = velocity.normalize().multiply(2);
 		return velocity;
@@ -151,6 +151,10 @@ public class EnderField extends JavaPlugin implements Listener {
 	public void handlePlayerInteractEvent(PlayerInteractEvent event)
 	{
 		Player player = event.getPlayer();
+		if (!player.hasPermission("enderfield.use"))
+		{
+			return;
+		}
 		if (!event.hasItem())
 		{
 			return;
