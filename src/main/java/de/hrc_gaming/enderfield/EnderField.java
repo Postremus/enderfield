@@ -1,10 +1,13 @@
 package de.hrc_gaming.enderfield;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
@@ -19,33 +22,27 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
+import de.slikey.effectlib.Effect;
+import de.slikey.effectlib.EffectLib;
+import de.slikey.effectlib.EffectManager;
+import de.slikey.effectlib.EffectType;
+import de.slikey.effectlib.effect.ConeLocationEffect;
+import de.slikey.effectlib.effect.ShieldEntityEffect;
+import de.slikey.effectlib.effect.TurnPlayerEffect;
+import de.slikey.effectlib.effect.VortexLocationEffect;
+import de.slikey.effectlib.util.ParticleEffect;
+
 public class EnderField extends JavaPlugin implements Listener {
-	private final List<UUID> forceFieldingPlayers = new ArrayList<UUID>();
-	private BukkitTask particleTask;
+	private Map<UUID, Effect> forceFieldingPlayers;
+	private EffectManager effectManager;
 	
 	@Override
 	public void onEnable()
 	{
 		Bukkit.getPluginManager().registerEvents(this, this);
-		particleTask = Bukkit.getScheduler().runTaskTimer(this, new Runnable(){
-			public void run()
-			{
-				for (UUID playerId : forceFieldingPlayers)
-				{
-					Player p = Bukkit.getPlayer(playerId);
-					if (p != null)
-					{
-						ParticleEffect.PORTAL.display(Bukkit.getPlayer(playerId).getLocation(), 3.5F, 2.5F, 3.5F, 2, 1000);
-					}
-				}
-			}
-		}, 0, 20);
-	}
-	
-	@Override
-	public void onDisable()
-	{
-		particleTask.cancel();
+		EffectLib lib = EffectLib.instance();
+        effectManager = new EffectManager(lib);
+        forceFieldingPlayers = new HashMap<UUID, Effect>();
 	}
 	
 	@EventHandler (priority = EventPriority.MONITOR, ignoreCancelled=true)
@@ -57,27 +54,26 @@ public class EnderField extends JavaPlugin implements Listener {
 		}
 		Player player = event.getPlayer();
 		List<Entity> nearEntities = player.getNearbyEntities(3, 3, 3);
-		if (!forceFieldingPlayers.contains(player.getUniqueId()))
+		if (!forceFieldingPlayers.containsKey(player.getUniqueId()))
 		{
 			for (Entity entity : nearEntities)
 			{
-				if (entity instanceof Player && forceFieldingPlayers.contains(((Player)entity).getUniqueId()))
+				if (entity instanceof Player && forceFieldingPlayers.containsKey(((Player)entity).getUniqueId()))
 				{
 					Location lookAt = lookAt(entity.getLocation(), player.getLocation());
 					Vector direction = getVector(lookAt);
-					entity.getLocation().setPitch(lookAt.getPitch());
-					entity.getLocation().setYaw(lookAt.getYaw());
-					entity.setVelocity(direction);
+					player.getLocation().setPitch(lookAt.getPitch());
+					player.getLocation().setYaw(lookAt.getYaw());
+					player.setVelocity(direction);
 					break;
 				}
 			}
 		}
 		else
 		{
-			ParticleEffect.PORTAL.display(player.getLocation(), 3, 3, 3, 0, 1000);
 			for (Entity entity : nearEntities)
 			{
-				if (entity instanceof Player && forceFieldingPlayers.contains(((Player)entity).getUniqueId()))
+				if (entity instanceof Player && forceFieldingPlayers.containsKey(((Player)entity).getUniqueId()))
 				{
 					Location lookAt = lookAt(player.getLocation(), entity.getLocation());
 					Vector direction = getVector(lookAt);
@@ -167,15 +163,22 @@ public class EnderField extends JavaPlugin implements Listener {
 		{
 			return;
 		}
-		if (forceFieldingPlayers.contains(player.getUniqueId()))
+		if (forceFieldingPlayers.containsKey(player.getUniqueId()))
 		{
-			forceFieldingPlayers.remove(player.getUniqueId());
-			player.sendMessage("Schutzschild deaktiviert");
+			forceFieldingPlayers.remove(player.getUniqueId()).cancel(false);
+			player.sendMessage(ChatColor.GREEN+"Schutzschild deaktiviert");
 		}
 		else
 		{
-			forceFieldingPlayers.add(player.getUniqueId());
-			player.sendMessage("Schutzschild aktiviert");
+			ShieldEntityEffect effect = new ShieldEntityEffect(effectManager, player);
+			effect.radius = 3;
+			effect.type = EffectType.REPEATING;
+			effect.particle = ParticleEffect.PORTAL;
+			effect.period = 1;
+			effect.iterations = -1;
+			effect.start();
+			forceFieldingPlayers.put(player.getUniqueId(), effect);
+			player.sendMessage(ChatColor.GREEN+"Schutzschild aktiviert");
 		}
 	}
 }
