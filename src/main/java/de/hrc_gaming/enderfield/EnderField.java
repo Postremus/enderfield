@@ -1,6 +1,5 @@
 package de.hrc_gaming.enderfield;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,20 +15,17 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
 import de.slikey.effectlib.Effect;
 import de.slikey.effectlib.EffectLib;
 import de.slikey.effectlib.EffectManager;
 import de.slikey.effectlib.EffectType;
-import de.slikey.effectlib.effect.ConeLocationEffect;
 import de.slikey.effectlib.effect.ShieldEntityEffect;
-import de.slikey.effectlib.effect.TurnPlayerEffect;
-import de.slikey.effectlib.effect.VortexLocationEffect;
 import de.slikey.effectlib.util.ParticleEffect;
 
 public class EnderField extends JavaPlugin implements Listener {
@@ -179,6 +175,7 @@ public class EnderField extends JavaPlugin implements Listener {
 			effect.start();
 			forceFieldingPlayers.put(player.getUniqueId(), effect);
 			player.sendMessage(ChatColor.GREEN+"Schutzschild aktiviert");
+			player.openInventory(Bukkit.getServer().createInventory(null, InventoryType.HOPPER, "Title for hopper"));
 		}
 	}
 }

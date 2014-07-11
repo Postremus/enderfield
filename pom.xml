@@ -20,8 +20,8 @@
   		</repository>
   		
   		<repository>
-        	<id>slikey local repo</id>
-        	<url>https://repository-postremus1996.forge.cloudbees.com/release/</url>
+        	<id>Effectlib</id>
+        	<url>http://maven.elmakers.com/repository/</url>
     	</repository>
     </repositories>
     
@@ -36,8 +36,8 @@
 		
     	<dependency>
     		<groupId>de.slikey</groupId>
-    		<artifactId>EffectLib</artifactId>
-    		<version>1.0</version>
+			<artifactId>EffectLib</artifactId>
+    		<version>1.6</version>
 		</dependency>
 	</dependencies>
 </project>
