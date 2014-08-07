@@ -6,31 +6,26 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
+import de.pro_crafting.commandframework.CommandFramework;
 import de.slikey.effectlib.Effect;
 import de.slikey.effectlib.EffectLib;
 import de.slikey.effectlib.EffectManager;
-import de.slikey.effectlib.EffectType;
-import de.slikey.effectlib.effect.ShieldEntityEffect;
-import de.slikey.effectlib.util.ParticleEffect;
 
 public class EnderField extends JavaPlugin implements Listener {
-	private Map<UUID, Effect> forceFieldingPlayers;
-	private EffectManager effectManager;
+	Map<UUID, Effect> forceFieldingPlayers;
+	EffectManager effectManager;
+	CommandFramework cmd;
 	
 	@Override
 	public void onEnable()
@@ -39,6 +34,8 @@ public class EnderField extends JavaPlugin implements Listener {
 		EffectLib lib = EffectLib.instance();
         effectManager = new EffectManager(lib);
         forceFieldingPlayers = new HashMap<UUID, Effect>();
+        cmd = new CommandFramework(this);
+        cmd.registerCommands(new Commands(this));
 	}
 	
 	@EventHandler (priority = EventPriority.MONITOR, ignoreCancelled=true)
@@ -80,6 +77,11 @@ public class EnderField extends JavaPlugin implements Listener {
 			}
 		}
 	}
+	
+	@Override
+    public boolean onCommand(CommandSender sender, org.bukkit.command.Command command, String label, String[] args) {
+        return this.cmd.handleCommand(sender, label, command, args);
+    }
 	
 	private Vector getVector(Location start)
 	{
@@ -138,44 +140,4 @@ public class EnderField extends JavaPlugin implements Listener {
 
         return loc;
     }
-	
-	@EventHandler (priority = EventPriority.MONITOR, ignoreCancelled=false)
-	public void handlePlayerInteractEvent(PlayerInteractEvent event)
-	{
-		Player player = event.getPlayer();
-		if (!player.hasPermission("enderfield.use"))
-		{
-			return;
-		}
-		if (!event.hasItem())
-		{
-			return;
-		}
-		if (!(event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK))
-		{
-			return;
-		}
-		if (event.getItem().getType() != Material.ENDER_PEARL)
-		{
-			return;
-		}
-		if (forceFieldingPlayers.containsKey(player.getUniqueId()))
-		{
-			forceFieldingPlayers.remove(player.getUniqueId()).cancel(false);
-			player.sendMessage(ChatColor.GREEN+"Schutzschild deaktiviert");
-		}
-		else
-		{
-			ShieldEntityEffect effect = new ShieldEntityEffect(effectManager, player);
-			effect.radius = 3;
-			effect.type = EffectType.REPEATING;
-			effect.particle = ParticleEffect.PORTAL;
-			effect.period = 1;
-			effect.iterations = -1;
-			effect.start();
-			forceFieldingPlayers.put(player.getUniqueId(), effect);
-			player.sendMessage(ChatColor.GREEN+"Schutzschild aktiviert");
-			player.openInventory(Bukkit.getServer().createInventory(null, InventoryType.HOPPER, "Title for hopper"));
-		}
-	}
 }
