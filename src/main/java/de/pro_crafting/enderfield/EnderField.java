@@ -1,9 +1,8 @@
-package de.hrc_gaming.enderfield;
+package de.pro_crafting.enderfield;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -23,19 +22,19 @@ import de.slikey.effectlib.EffectLib;
 import de.slikey.effectlib.EffectManager;
 
 public class EnderField extends JavaPlugin implements Listener {
-	Map<UUID, Effect> forceFieldingPlayers;
+	Map<String, Effect> forceFieldingPlayers;
 	EffectManager effectManager;
 	CommandFramework cmd;
 	
 	@Override
 	public void onEnable()
 	{
-		Bukkit.getPluginManager().registerEvents(this, this);
 		EffectLib lib = EffectLib.instance();
         effectManager = new EffectManager(lib);
-        forceFieldingPlayers = new HashMap<UUID, Effect>();
+        forceFieldingPlayers = new HashMap<String, Effect>();
         cmd = new CommandFramework(this);
         cmd.registerCommands(new Commands(this));
+		Bukkit.getPluginManager().registerEvents(this, this);
 	}
 	
 	@EventHandler (priority = EventPriority.MONITOR, ignoreCancelled=true)
@@ -47,18 +46,17 @@ public class EnderField extends JavaPlugin implements Listener {
 		}
 		Player player = event.getPlayer();
 		List<Entity> nearEntities = player.getNearbyEntities(3, 3, 3);
-		if (!forceFieldingPlayers.containsKey(player.getUniqueId()))
+		if (!forceFieldingPlayers.containsKey(player.getUniqueId().toString()))
 		{
 			for (Entity entity : nearEntities)
 			{
-				if (entity instanceof Player && forceFieldingPlayers.containsKey(((Player)entity).getUniqueId()))
+				if (entity instanceof Player && forceFieldingPlayers.containsKey(((Player)entity).getUniqueId().toString()))
 				{
 					Location lookAt = lookAt(entity.getLocation(), player.getLocation());
 					Vector direction = getVector(lookAt);
 					player.getLocation().setPitch(lookAt.getPitch());
 					player.getLocation().setYaw(lookAt.getYaw());
 					player.setVelocity(direction);
-					break;
 				}
 			}
 		}
@@ -66,7 +64,7 @@ public class EnderField extends JavaPlugin implements Listener {
 		{
 			for (Entity entity : nearEntities)
 			{
-				if (entity instanceof Player && forceFieldingPlayers.containsKey(((Player)entity).getUniqueId()))
+				if (entity instanceof Player)
 				{
 					Location lookAt = lookAt(player.getLocation(), entity.getLocation());
 					Vector direction = getVector(lookAt);

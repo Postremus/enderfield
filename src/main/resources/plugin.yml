@@ -3,4 +3,4 @@ version: 0.0.1-SNAPSHOT
 description: Postremus ForceField Plugin
 website: 
 author: postremus
-main: de.hrc_gaming.enderfield.EnderField
+main: de.pro_crafting.enderfield.EnderField

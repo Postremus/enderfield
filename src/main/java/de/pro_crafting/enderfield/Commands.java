@@ -1,4 +1,4 @@
-package de.hrc_gaming.enderfield;
+package de.pro_crafting.enderfield;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -23,8 +23,8 @@ public class Commands {
 			return;
 		}
 		Player player = args.getPlayer();
-		if (plugin.forceFieldingPlayers.containsKey(player.getUniqueId())) {
-			plugin.forceFieldingPlayers.remove(player.getUniqueId()).cancel(
+		if (plugin.forceFieldingPlayers.containsKey(player.getUniqueId().toString())) {
+			plugin.forceFieldingPlayers.remove(player.getUniqueId().toString()).cancel(
 					false);
 			player.sendMessage(ChatColor.GREEN + "Schutzschild deaktiviert.");
 		} else {
@@ -36,7 +36,7 @@ public class Commands {
 			effect.period = 1;
 			effect.iterations = -1;
 			effect.start();
-			plugin.forceFieldingPlayers.put(player.getUniqueId(), effect);
+			plugin.forceFieldingPlayers.put(player.getUniqueId().toString(), effect);
 			player.sendMessage(ChatColor.GREEN + "Schutzschild aktiviert.");
 		}
 	}
