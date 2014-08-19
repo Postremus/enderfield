@@ -13,6 +13,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.Vector;
 
@@ -74,6 +75,11 @@ public class EnderField extends JavaPlugin implements Listener {
 				}
 			}
 		}
+	}
+	
+	@EventHandler
+	public void playerQuitHandler(PlayerQuitEvent event) {
+		forceFieldingPlayers.remove(event.getPlayer().getUniqueId().toString()).cancel(false);
 	}
 	
 	@Override
