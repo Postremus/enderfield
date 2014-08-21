@@ -79,7 +79,10 @@ public class EnderField extends JavaPlugin implements Listener {
 	
 	@EventHandler
 	public void playerQuitHandler(PlayerQuitEvent event) {
-		forceFieldingPlayers.remove(event.getPlayer().getUniqueId().toString()).cancel(false);
+		Effect eff = forceFieldingPlayers.remove(event.getPlayer().getUniqueId().toString());
+		if (eff != null) {
+			eff.cancel(false);
+		}
 	}
 	
 	@Override
